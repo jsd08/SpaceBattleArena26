@@ -3,42 +3,60 @@ import java.awt.Color;
 import ihs.apcs.spacebattle.*;
 import ihs.apcs.spacebattle.commands.*;
 
+
+
 public class ExampleShip extends BasicSpaceship {
+    private int worldWidth;
+    private int worldHeight;
+    private Point midpoint;
+    
     public static void main(String[] args)
     {
         TextClient.run("10.56.98.121", new ExampleShip());
     }
+    
 
     @Override
     public RegistrationData registerShip(int numImages, int worldWidth, int worldHeight)
     {
+        this.worldWidth = worldWidth;
+        this.worldHeight = worldHeight;
+        this.midpoint = new Point(worldHeight / 2, worldHeight / 2);
         return new RegistrationData("jD SHip", new Color(50, 50, 75), 0);
     }
+    
+    public boolean isPointingAtMiddle(int angleToMidpoint)
+    {
+      return angleToMidpoint == 0;
+    }
 
+    public int getAngleToMidPoint(BasicEnvironment env)
+    {
+      ObjectStatus ship = env.getShipStatus();
+      return ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation();
+    }
+    
     @Override
     public ShipCommand getNextCommand(BasicEnvironment env)
     {
-        ObjectStatus shipStatus = env.getShipStatus();
-
-        // normalize
-        while (difference > 180)
-            difference -= 360;
-
-        while (difference < -180)
-            difference += 360;
-
-        // rotate toward center
-        if (difference > 5)
+        ObjectStatus ship = env.getShipStatus();
+        double distanceToMid = ship.getPosition().getDistanceTo(this.midpoint);
+        
+        if (distanceToMid <= 200)
         {
-            return new RotateCommand(5);
+            return new BrakeCommand(0.01);
         }
-
-        if (difference < -5)
+        
+        int angleToMidpoint = getAngleToMidPoint(env);
+        
+        if(!isPointingAtMiddle(angleToMidpoint))
         {
-            return new RotateCommand(-5);
+            return new RotateCommand(angleToMidpoint);
         }
-
-        // thrust forward
-        return new ThrustCommand(1.0);
+        else
+        {
+            return new ThrustCommand('B', 8.0, 1.0);
+        }
     }
+
 }
