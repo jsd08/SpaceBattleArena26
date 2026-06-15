@@ -52,7 +52,12 @@ public class ExampleShip extends BasicSpaceship {
         }
         else
         {
-           return new ThrustCommand('B', 8.0, 1.0);
+           if (distanceToMid < 500)
+           {
+             return new FireTorpedoCommand('F');
+           }
+            
+            return new ThrustCommand('B', 2.0, 1.0);
         }
     }  
     }
