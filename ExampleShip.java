@@ -55,4 +55,4 @@ public class ExampleShip extends BasicSpaceship {
            return new ThrustCommand('B', 8.0, 1.0);
         }
     }  
-}
+    }
